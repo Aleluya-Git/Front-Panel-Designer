@@ -1,0 +1,28 @@
+name: Actualizar notas de la versión
+
+# Copia packaging/RELEASE_NOTES.md en la descripción de una Release ya publicada (por defecto, la de la
+# versión actual de efpd/__init__.py). Se lanza a mano desde la pestaña Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      etiqueta:
+        description: "Etiqueta de la versión (vacío = v<versión actual>)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Actualizar la descripción
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_IN: ${{ inputs.etiqueta }}
+        run: |
+          TAG="${TAG_IN:-v$(python3 -c "import efpd; print(efpd.__version__)")}"
+          gh release edit "$TAG" --notes-file packaging/RELEASE_NOTES.md
+          gh release view "$TAG" --json url --jq .url

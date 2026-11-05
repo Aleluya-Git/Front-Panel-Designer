@@ -158,3 +158,4 @@ jobs:
             gh release create "$TAG" --target "$GITHUB_SHA" --title "Electronic Front Panel Designer ${TAG#v}" \
               --notes-file packaging/RELEASE_NOTES.md
           gh release upload "$TAG" instaladores/* --clobber
+          gh release edit "$TAG" --notes-file packaging/RELEASE_NOTES.md
