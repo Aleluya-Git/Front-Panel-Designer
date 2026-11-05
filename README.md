@@ -1,4 +1,4 @@
-<img width="509" height="549" alt="jpeg" src="https://github.com/user-attachments/assets/7f0727f9-37a1-493d-85f6-8608486a240b" />
+<img width="255" height="275" alt="jpeg" src="https://github.com/user-attachments/assets/7f0727f9-37a1-493d-85f6-8608486a240b" />
 
 # Electronic Front Panel Designer
 
