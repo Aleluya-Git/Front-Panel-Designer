@@ -2,7 +2,7 @@
 
 # Electronic Front Panel Designer
 
-[English](README.md) · **Español**
+[English](README.md) · **Español** · [Deutsch](README.de.md) · [Français](README.fr.md)
 
 Aplicación de escritorio (Windows, Linux, macOS) para diseñar paneles frontales y traseros de
 equipos electrónicos: fuentes de alimentación, amplificadores, instrumentos, módulos Eurorack,
