@@ -1,11 +1,17 @@
 name: Instaladores (Windows y macOS)
 
 # Se ejecuta al publicar una etiqueta de versión (v1.0.0, v1.1.0…) y crea la «Release» con los instaladores.
-# También puede lanzarse a mano desde la pestaña Actions (en ese caso sólo deja los instaladores como artefactos).
+# También puede lanzarse a mano desde la pestaña Actions: sin marcar «publicar» sólo deja los instaladores como
+# artefactos; marcándolo crea además la etiqueta v<versión> y la Release.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      publicar:
+        description: "Publicar la Release v<versión de efpd/__init__.py> con los instaladores"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -129,7 +135,7 @@ jobs:
   release:
     name: Publicar la versión
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v') && !cancelled()
+    if: (startsWith(github.ref, 'refs/tags/v') || inputs.publicar) && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -143,7 +149,12 @@ jobs:
         run: |
           ls -la instaladores
           test -n "$(ls instaladores)"
-          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v$(python3 -c "import efpd; print(efpd.__version__)")"
+          fi
           gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --title "Electronic Front Panel Designer ${TAG#v}" --notes-file packaging/RELEASE_NOTES.md
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "Electronic Front Panel Designer ${TAG#v}" \
+              --notes-file packaging/RELEASE_NOTES.md
           gh release upload "$TAG" instaladores/* --clobber
