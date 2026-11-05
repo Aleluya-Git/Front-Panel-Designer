@@ -8,10 +8,11 @@ power supplies, amplifiers, instruments, Eurorack modules, Hammond enclosures, 1
 boxed device. Draw the panel, drop in real components from the library, add text, scales and graphics,
 check for interferences and export ready-to-manufacture files (DXF, SVG, PDF, PNG, STL, G-code, HPGL).
 
+The interface is available in Spanish, English, German and French, and new languages can be added from a JSON file.
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f4160162-5d39-476f-833f-6bc74736f2b6" />
 
-Written in Python with PySide6 (Qt 6). The interface is available in Spanish, English, German and French, and
-new languages can be added from a JSON file.
+Written in Python with PySide6 (Qt 6). 
 
 ## Download
 
