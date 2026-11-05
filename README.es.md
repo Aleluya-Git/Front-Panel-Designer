@@ -7,6 +7,7 @@
 Aplicación de escritorio (Windows, Linux, macOS) para diseñar paneles frontales y traseros de
 equipos electrónicos: fuentes de alimentación, amplificadores, instrumentos, módulos Eurorack,
 cajas Hammond, paneles rack 19" y cualquier equipo en gabinete.
+
 <img width="1920" height="1037" alt="image" src="https://github.com/user-attachments/assets/c9bd9a6b-6e53-464d-82dc-8e66d648dfea" />
 
 
