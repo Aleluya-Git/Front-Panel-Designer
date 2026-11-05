@@ -3,13 +3,12 @@
 # Electronic Front Panel Designer
 
 **English** · [Español](README.es.md)
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f4160162-5d39-476f-833f-6bc74736f2b6" />
-
-
 Desktop application (Windows, Linux, macOS) for designing front and rear panels of electronic equipment:
 power supplies, amplifiers, instruments, Eurorack modules, Hammond enclosures, 19" rack panels and any other
 boxed device. Draw the panel, drop in real components from the library, add text, scales and graphics,
 check for interferences and export ready-to-manufacture files (DXF, SVG, PDF, PNG, STL, G-code, HPGL).
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f4160162-5d39-476f-833f-6bc74736f2b6" />
 
 Written in Python with PySide6 (Qt 6). The interface is available in Spanish, English, German and French, and
 new languages can be added from a JSON file.
