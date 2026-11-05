@@ -1,7 +1,10 @@
+<img width="509" height="549" alt="jpeg" src="https://github.com/user-attachments/assets/7f0727f9-37a1-493d-85f6-8608486a240b" />
+
 # Electronic Front Panel Designer
 
 **English** · [Español](README.es.md)
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/421ed160-0e0e-4e93-971b-8c8608cb31d4" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f4160162-5d39-476f-833f-6bc74736f2b6" />
+
 
 Desktop application (Windows, Linux, macOS) for designing front and rear panels of electronic equipment:
 power supplies, amplifiers, instruments, Eurorack modules, Hammond enclosures, 19" rack panels and any other
