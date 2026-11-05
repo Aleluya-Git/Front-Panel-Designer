@@ -1,0 +1,149 @@
+name: Instaladores (Windows y macOS)
+
+# Se ejecuta al publicar una etiqueta de versión (v1.0.0, v1.1.0…) y crea la «Release» con los instaladores.
+# También puede lanzarse a mano desde la pestaña Actions (en ese caso sólo deja los instaladores como artefactos).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            target: windows
+          - name: macOS Apple Silicon
+            os: macos-latest
+            target: macos
+            arch: arm64
+          - name: macOS Intel
+            os: macos-15-intel
+            target: macos
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependencias
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+
+      - name: Pruebas del núcleo
+        run: python -m unittest tests.test_core -v
+
+      - name: Versión
+        id: ver
+        shell: bash
+        run: |
+          VERSION=$(python -c "import efpd; print(efpd.__version__)")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "${GITHUB_REF#refs/tags/v}" != "$VERSION" ]]; then
+            echo "::error::La etiqueta ${GITHUB_REF#refs/tags/} no coincide con efpd.__version__ ($VERSION)"
+            exit 1
+          fi
+
+      # ------------------------------------------------------------------ Windows
+      - name: Empaquetar (Windows)
+        if: matrix.target == 'windows'
+        run: |
+          python packaging/windows/make_version_info.py
+          pyinstaller --noconfirm --clean packaging/efpd.spec
+
+      - name: Prueba del programa empaquetado (Windows)
+        if: matrix.target == 'windows'
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:EFPD_SMOKE_OUT = "$PWD\smoke.txt"
+          $env:EFPD_SMOKE_FILE = "$PWD\ejemplos\fuente_laboratorio.efpd"
+          $p = Start-Process -FilePath "dist\FrontPanelDesigner\FrontPanelDesigner.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+          Get-Content smoke.txt
+          if ($p.ExitCode -ne 0) { throw "La prueba falló (código $($p.ExitCode))" }
+
+      - name: Instalador (Inno Setup)
+        if: matrix.target == 'windows'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          & $iscc /DAppVersion=${{ steps.ver.outputs.version }} packaging\windows\efpd.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC falló" }
+
+      - name: Prueba del instalador (Windows)
+        if: matrix.target == 'windows'
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist\*-Setup.exe | Select-Object -First 1
+          $dir = "$env:RUNNER_TEMP\efpd-inst"
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/CURRENTUSER","/DIR=$dir","/TASKS=assoc" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "La instalación falló (código $($p.ExitCode))" }
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:EFPD_SMOKE_OUT = "$PWD\smoke_inst.txt"
+          $env:EFPD_SMOKE_FILE = "$dir\ejemplos\eurorack_vco_12hp.efpd"
+          $p = Start-Process -FilePath "$dir\FrontPanelDesigner.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+          Get-Content smoke_inst.txt
+          if ($p.ExitCode -ne 0) { throw "El programa instalado falló (código $($p.ExitCode))" }
+
+      # ------------------------------------------------------------------ macOS
+      - name: Empaquetar (macOS)
+        if: matrix.target == 'macos'
+        run: |
+          test "$(uname -m)" = "${{ matrix.arch }}"
+          packaging/macos/make_icns.sh
+          pyinstaller --noconfirm --clean packaging/efpd.spec
+
+      - name: Prueba del programa empaquetado (macOS)
+        if: matrix.target == 'macos'
+        run: |
+          export QT_QPA_PLATFORM=offscreen EFPD_SMOKE_OUT="$PWD/smoke.txt"
+          export EFPD_SMOKE_FILE="$PWD/ejemplos/fuente_laboratorio.efpd"
+          "dist/Electronic Front Panel Designer.app/Contents/MacOS/FrontPanelDesigner" --smoke-test
+          cat smoke.txt
+
+      - name: Imagen de disco (macOS)
+        if: matrix.target == 'macos'
+        run: packaging/macos/make_dmg.sh "${{ steps.ver.outputs.version }}" "${{ matrix.arch }}"
+
+      # ------------------------------------------------------------------ resultado
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instalador-${{ matrix.target }}-${{ matrix.arch || 'x64' }}
+          path: |
+            dist/*-Setup.exe
+            dist/*.dmg
+          if-no-files-found: error
+
+  release:
+    name: Publicar la versión
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: instaladores
+          merge-multiple: true
+      - name: Crear la Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la instaladores
+          test -n "$(ls instaladores)"
+          TAG="${GITHUB_REF#refs/tags/}"
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --title "Electronic Front Panel Designer ${TAG#v}" --notes-file packaging/RELEASE_NOTES.md
+          gh release upload "$TAG" instaladores/* --clobber

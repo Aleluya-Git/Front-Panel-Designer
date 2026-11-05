@@ -1,0 +1,17 @@
+Electronic Front Panel Designer — macOS
+
+ES  Arrastre «Electronic Front Panel Designer» a la carpeta Aplicaciones.
+    La aplicación no está firmada por Apple. La primera vez, macOS dirá que no puede comprobar el
+    desarrollador: abra Ajustes del Sistema → Privacidad y seguridad y pulse «Abrir igualmente»
+    (o haga clic derecho sobre la app → Abrir). Alternativa en Terminal:
+        xattr -dr com.apple.quarantine "/Applications/Electronic Front Panel Designer.app"
+    La carpeta «Ejemplos» contiene proyectos de muestra.
+
+EN  Drag "Electronic Front Panel Designer" to the Applications folder.
+    The app is not signed by Apple. The first time, macOS will say it cannot verify the developer:
+    open System Settings → Privacy & Security and click "Open Anyway" (or right-click the app → Open).
+    Terminal alternative:
+        xattr -dr com.apple.quarantine "/Applications/Electronic Front Panel Designer.app"
+    The "Ejemplos" folder contains sample projects.
+
+License: GPL-3.0 — https://github.com/Aleluya-Git/Front-Panel-Designer

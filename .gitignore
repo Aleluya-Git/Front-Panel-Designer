@@ -9,3 +9,7 @@ autoprueba_bloqueo.txt
 .idea/
 .vscode/
 *.efpd.bak
+build/
+dist/
+packaging/windows/version_info.txt
+efpd/resources/icon.icns

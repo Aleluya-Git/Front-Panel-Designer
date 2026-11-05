@@ -85,7 +85,10 @@ def main(argv=None):
     from .main_window import MainWindow
     win = MainWindow()
     app._efpd_window = win
+    _install_file_open_handler(app)
     win.show()
+    if "--smoke-test" in argv:  # comprobación del programa empaquetado (instaladores)
+        return _smoke_test(app, win)
     files = [a for a in argv[1:] if a.lower().endswith(".efpd") and os.path.exists(a)]
     pend = project.pending_autosave()
     if pend:
@@ -100,6 +103,66 @@ def main(argv=None):
     elif files:
         win.load_path(files[0])
     return app.exec()
+
+
+def _smoke_test(app, win):
+    """Abre la ventana, carga un ejemplo si lo encuentra, comprueba los recursos y sale.
+
+    El resultado se escribe en EFPD_SMOKE_OUT (los .exe de ventana no tienen consola)."""
+    from .. import __version__, i18n
+    from . import icons
+    lines, ok = [f"version {__version__}"], True
+    try:
+        app.processEvents()
+        lines.append(f"icono {'OK' if not icons.app_icon().isNull() else 'FALTA'}")
+        ok &= not icons.app_icon().isNull()
+        langs = sorted(i18n.available())
+        lines.append(f"idiomas {langs}")
+        ok &= {"en", "de", "fr"} <= set(langs)
+        n = len(i18n.all_strings())
+        lines.append(f"textos traducibles {n}")
+        ok &= n > 500
+        from ..core.library import BUILTIN
+        lines.append(f"componentes {len(BUILTIN)}")
+        ok &= len(BUILTIN) > 50
+        for path in (os.environ.get("EFPD_SMOKE_FILE") or "").split(os.pathsep):
+            if path and os.path.exists(path):
+                ok &= bool(win.load_path(path, as_path=""))
+                lines.append(f"abierto {os.path.basename(path)}: {len(win.doc.entities)} entidades")
+                win.canvas.grab()
+        app.processEvents()
+    except Exception as e:  # noqa: BLE001
+        import traceback
+        ok = False
+        lines.append("ERROR " + "".join(traceback.format_exception(e)))
+    lines.append("RESULTADO " + ("OK" if ok else "FALLO"))
+    out = os.environ.get("EFPD_SMOKE_OUT")
+    if out:
+        with open(out, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    win.history.mark_clean()
+    win.close()
+    return 0 if ok else 1
+
+
+def _install_file_open_handler(app):
+    """macOS: abrir un .efpd con doble clic en el Finder llega como evento FileOpen, no como argumento."""
+    from PySide6.QtCore import QEvent, QObject
+
+    class _FileOpen(QObject):
+        def eventFilter(self, obj, ev):  # noqa: N802 (nombre de Qt)
+            if ev.type() == QEvent.Type.FileOpen:
+                path = ev.file()
+                win = getattr(app, "_efpd_window", None)
+                if path and win is not None and path.lower().endswith(".efpd"):
+                    if win.maybe_save():
+                        win.load_path(path)
+                    return True
+            return False
+
+    app._efpd_file_open = _FileOpen(app)
+    app.installEventFilter(app._efpd_file_open)
 
 
 def _system_language():

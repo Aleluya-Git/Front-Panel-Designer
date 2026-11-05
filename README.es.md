@@ -10,7 +10,14 @@ cajas Hammond, paneles rack 19" y cualquier equipo en gabinete.
 <img width="1920" height="1037" alt="image" src="https://github.com/user-attachments/assets/c9bd9a6b-6e53-464d-82dc-8e66d648dfea" />
 
 
-## Instalación y uso
+## Descarga
+
+Las versiones listas para instalar en **Windows** (instalador `.exe`) y **macOS** (`.dmg`, Apple Silicon e Intel)
+están en la [página de versiones](https://github.com/Aleluya-Git/Front-Panel-Designer/releases/latest). No están
+firmadas digitalmente: en Windows, si SmartScreen avisa, pulse *Más información → Ejecutar de todas formas*; en
+macOS, la primera vez, vaya a *Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente*.
+
+## Instalación desde el código fuente
 
 | Sistema | Instalar | Ejecutar | Verificar |
 |---|---|---|---|
@@ -123,3 +130,10 @@ Atajos: menú *Ayuda → Atajos y uso* (F1).
 Copyright © 2026 Aleluya-Git. Este programa es software libre: puede redistribuirlo y/o modificarlo bajo los
 términos de la Licencia Pública General de GNU, versión 3 (véase [LICENSE](LICENSE)). Se distribuye con la
 esperanza de que sea útil, pero **sin ninguna garantía**. Compruebe siempre las medidas antes de mecanizar.
+
+## Crear los instaladores
+
+Los instaladores se generan solos en GitHub Actions (`.github/workflows/build-installers.yml`) al publicar una
+etiqueta de versión que coincida con `efpd/__init__.py` (por ejemplo `v1.0.0`): PyInstaller empaqueta el programa,
+Inno Setup crea el instalador de Windows y `hdiutil` la imagen `.dmg` de macOS; cada uno se prueba arrancando el
+programa empaquetado antes de publicarlo. Los ficheros de empaquetado están en `packaging/`.

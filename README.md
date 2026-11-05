@@ -13,7 +13,15 @@ check for interferences and export ready-to-manufacture files (DXF, SVG, PDF, PN
 Written in Python with PySide6 (Qt 6). The interface is available in Spanish, English, German and French, and
 new languages can be added from a JSON file.
 
-## Installation and usage
+## Download
+
+Ready-to-install versions for **Windows** (installer `.exe`) and **macOS** (`.dmg`, Apple Silicon and Intel)
+are on the [Releases page](https://github.com/Aleluya-Git/Front-Panel-Designer/releases/latest). They are not
+code-signed: on Windows click *More info → Run anyway* if SmartScreen warns; on macOS, the first time, go to
+*System Settings → Privacy & Security → Open Anyway*.
+
+## Running from source
+
 
 | System | Install | Run | Self-test |
 |---|---|---|---|
@@ -87,6 +95,7 @@ efpd/gui    PySide6 interface: main window, canvas, dialogs, 3D view, themes, ic
 efpd/lang   translations (en, de, fr)
 tests       unit tests and a Qt-free paint simulation
 tools       self-test, example and translation generators
+packaging   PyInstaller spec, Windows installer (Inno Setup) and macOS disk image scripts
 ```
 
 See [ARQUITECTURA.md](ARQUITECTURA.md) (Spanish) for the architecture notes.
