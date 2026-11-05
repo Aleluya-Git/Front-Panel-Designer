@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+autoprueba_salida/
+autoprueba_resultado.txt
+autoprueba_bloqueo.txt
+.ruff_cache/
+*.pyc
+.pytest_cache/
+.idea/
+.vscode/
+*.efpd.bak
