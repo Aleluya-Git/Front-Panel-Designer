@@ -1,3 +1,4 @@
+<img width="255" height="275" alt="image" src="https://github.com/user-attachments/assets/409470ba-2785-4384-9ee5-3477be7e8226" />
 
 # Electronic Front Panel Designer
 
